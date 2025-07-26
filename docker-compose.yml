@@ -1,0 +1,24 @@
+version: '3.9'
+
+services:
+  web:
+    build: .
+    command: >
+      sh -c "python manage.py migrate && daphne -b 0.0.0.0 -p 8000 NuxTest.asgi:application"
+    volumes:
+      - .:/app
+    ports:
+      - "8000:8000"
+    depends_on:
+      - redis
+  celery:
+    build: .
+    command: celery -A NuxTest worker -l info
+    volumes:
+      - .:/app
+    depends_on:
+      - redis
+  redis:
+    image: redis:7
+    ports:
+      - "6379:6379" 

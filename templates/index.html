@@ -1,0 +1,41 @@
+{% extends 'base.html' %}
+{% block title %}Play Game{% endblock %}
+{% block content %}
+<h2 class="mb-4">Number Game</h2>
+<div class="row">
+  <div class="col-md-6">
+    <h5>Enter number</h5>
+    <div class="input-group mb-3">
+      <input type="number" id="numberInput" class="form-control" placeholder="e.g. 842">
+      <button class="btn btn-primary" id="playBtn">Play</button>
+    </div>
+  </div>
+  <div class="col-md-6">
+    <h5>Results</h5>
+    <ul id="results" class="list-group"></ul>
+  </div>
+</div>
+<script>
+  const socket = new WebSocket(`ws://${location.host}/ws/game/`);
+  socket.onmessage = (e) => {
+    const data = JSON.parse(e.data);
+    const li = document.createElement('li');
+    li.className = 'list-group-item';
+    li.innerText = `Number ${data.number} - ${data.result}${data.prize ? ' - prize: ' + data.prize : ''}`;
+    document.getElementById('results').prepend(li);
+  };
+
+  document.getElementById('playBtn').addEventListener('click', () => {
+    const num = document.getElementById('numberInput').value;
+    if(!num) return;
+    fetch('/api/game/play', {
+      method: 'POST',
+      headers: {
+        'Content-Type': 'application/json',
+        'X-CSRFToken': csrftoken,
+      },
+      body: JSON.stringify({number: parseInt(num)})
+    }).then(r => r.json()).then(console.log);
+  });
+</script>
+{% endblock %} 
