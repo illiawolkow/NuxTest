@@ -94,42 +94,4 @@ docker compose run --rm web python manage.py test
 
 ## Scalability & Production considerations
 
-See [docs/scaling.md](docs/scaling.md) for details on horizontal scaling, task queues, caching, securing WebSockets and more. 
-
-База-даних ще не містить таблиці `game_gameresult`, бо для застосунку `game` не було створено й застосовано міграції після додавання моделі.
-
-Як швидко виправити:
-
-1. У контейнері web (або на локальній машині) створіть міграції й застосуйте їх:
-
-```bash
-# якщо вже запущені контейнери
-docker compose exec web python manage.py makemigrations game
-docker compose exec web python manage.py migrate
-```
-
-або, якщо контейнери не запущені:
-
-```bash
-docker compose run --rm web python manage.py makemigrations game
-docker compose run --rm web python manage.py migrate
-```
-
-2. Перезапустіть сервер (`docker compose up web`), після чого POST `/api/game/` працюватиме без помилки.
-
-Підказка на майбутнє: коли додаєте нові моделі чи поля, потрібно:
-
-• `makemigrations` – згенерувати файли міграцій  
-• `migrate` – застосувати їх до бази даних
-
-Якщо хочете робити це автоматично при кожному старті контейнера, можна змінити команду `web` у `docker-compose.yml`, наприклад:
-
-```yaml
-<code_block_to_apply_changes_from>
-command: >
-  sh -c "python manage.py makemigrations --no-input &&
-         python manage.py migrate --no-input &&
-         daphne -b 0.0.0.0 -p 8000 NuxTest.asgi:application"
-```
-
-Тоді міграції будуть створюватися/застосовуватися автоматично при кожному запуску. 
+See [docs/scaling.md](docs/scaling.md) for details on horizontal scaling, task queues, caching, securing WebSockets and more.
